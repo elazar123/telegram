@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>המרת הודעות - וואטסאפ לטלגרם</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .converter-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .input-section, .output-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid #e9ecef;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-section:focus-within {
+            border-color: #25d366;
+        }
+
+        .output-section {
+            border-color: #0088cc;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .whatsapp-icon, .telegram-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+        }
+
+        .whatsapp-icon {
+            background: #25d366;
+        }
+
+        .telegram-icon {
+            background: #0088cc;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 16px;
+            line-height: 1.5;
+            resize: vertical;
+            font-family: inherit;
+            transition: border-color 0.3s ease;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #25d366;
+        }
+
+        #output {
+            background: #f1f3f4;
+            border-color: #0088cc;
+        }
+
+        .convert-btn {
+            background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 0 auto 30px;
+            box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3);
+        }
+
+        .convert-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(37, 211, 102, 0.4);
+        }
+
+        .convert-btn:active {
+            transform: translateY(0);
+        }
+
+        .copy-btn {
+            background: #0088cc;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: #006699;
+            transform: translateY(-1px);
+        }
+
+        .format-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .format-btn {
+            background: #25d366;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .format-btn:hover {
+            background: #128c7e;
+            transform: translateY(-1px);
+        }
+
+        .format-btn:active {
+            transform: translateY(0);
+        }
+
+        .telegram-channel {
+            background: linear-gradient(135deg, #0088cc 0%, #006699 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 30px 0;
+            text-align: center;
+            color: white;
+        }
+
+        .telegram-channel h3 {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .telegram-channel .fire-emoji {
+            font-size: 1.5rem;
+        }
+
+        .telegram-channel a {
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1rem;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 25px;
+            display: inline-block;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .telegram-channel a:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .examples {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+
+        .examples h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .example-item {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            border-left: 4px solid #25d366;
+        }
+
+        .example-item strong {
+            color: #25d366;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .example-item code {
+            background: #f1f3f4;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+
+        @media (max-width: 768px) {
+            .converter-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>המרת הודעות</h1>
+            <p>המר הודעות מפורמט וואטסאפ לפורמט טלגרם בקלות</p>
+        </div>
+        
+        <div class="content">
+            <div class="converter-section">
+                <div class="input-section">
+                    <div class="section-title">
+                        <div class="whatsapp-icon"></div>
+                        הודעת וואטסאפ
+                    </div>
+                    
+                    <div class="format-buttons">
+                        <button class="format-btn" onclick="addFormat('bold')" title="הוסף בולד לטקסט הנבחר">
+                            <strong>B</strong> בולד
+                        </button>
+                        <button class="format-btn" onclick="addFormat('italic')" title="הוסף איטליק לטקסט הנבחר">
+                            <em>I</em> איטליק
+                        </button>
+                        <button class="format-btn" onclick="addFormat('strike')" title="הוסף קו חוצה לטקסט הנבחר">
+                            <s>S</s> קו חוצה
+                        </button>
+                        <button class="format-btn" onclick="addFormat('code')" title="הוסף קוד לטקסט הנבחר">
+                            <code>C</code> קוד
+                        </button>
+                    </div>
+                    
+                    <textarea id="input" placeholder="הכנס כאן את ההודעה מוואטסאפ (טקסט רגיל)...
+
+💡 טיפ: 
+1. הדבק את הטקסט מוואטסאפ
+2. סמן חלק מהטקסט שרוצה לעצב
+3. לחץ על הכפתור המתאים (בולד/איטליק/וכו')
+4. ההמרה תקרה אוטומטית!
+
+או הקלד עם הסימנים המקוריים:
+*טקסט מודגש*
+_טקסט נטוי_
+~טקסט עם קו חוצה~
+```קוד```"></textarea>
+                </div>
+                
+                <div class="output-section">
+                    <div class="section-title">
+                        <div class="telegram-icon"></div>
+                        הודעת טלגרם
+                    </div>
+                    <textarea id="output" placeholder="כאן תופיע ההודעה המותאמת לטלגרם עם כל ההדגשות..." readonly></textarea>
+                    <button class="copy-btn" onclick="copyOutput()">העתק לטלגרם</button>
+                </div>
+            </div>
+            
+            <button class="convert-btn" onclick="convertMessage()">המר הודעה</button>
+            
+            <div class="telegram-channel">
+                <h3>
+                    <span class="fire-emoji">🔥</span>
+                    נלחמים על החיים
+                    <span class="fire-emoji">🔥</span>
+                </h3>
+                <p>הצטרף לערוץ הטלגרם שלנו לקבלת עדכונים חשובים</p>
+                <a href="https://t.me/nilchamim" target="_blank">@nilchamim</a>
+            </div>
+            
+            <div class="examples">
+                <h3>דוגמאות להמרה:</h3>
+                
+                <div class="example-item" style="border-left-color: #ff6b6b; background: #fff5f5;">
+                    <strong style="color: #ff6b6b;">💡 איך להשתמש באתר:</strong>
+                    <strong>דרך 1 - עם כפתורי הפורמט:</strong><br>
+                    1. הדבק את הטקסט הרגיל מוואטסאפ<br>
+                    2. סמן חלק מהטקסט שרוצה לעצב<br>
+                    3. לחץ על הכפתור המתאים (בולד/איטליק/וכו')<br>
+                    4. חזור על השלבים לשאר הטקסט<br><br>
+                    <strong>דרך 2 - הקלדה עם סימנים:</strong><br>
+                    הקלד את הטקסט עם הסימנים המקוריים של וואטסאפ
+                </div>
+                
+                <div class="example-item">
+                    <strong>טקסט מודגש:</strong>
+                    וואטסאפ: <code>*הטקסט שלי*</code> → טלגרם: <code>**הטקסט שלי**</code>
+                </div>
+                
+                <div class="example-item">
+                    <strong>טקסט נטוי:</strong>
+                    וואטסאפ: <code>_הטקסט שלי_</code> → טלגרם: <code>__הטקסט שלי__</code>
+                </div>
+                
+                <div class="example-item">
+                    <strong>קו חוצה:</strong>
+                    וואטסאפ: <code>~הטקסט שלי~</code> → טלגרם: <code>~~הטקסט שלי~~</code>
+                </div>
+                
+                <div class="example-item">
+                    <strong>קוד/מונו:</strong>
+                    וואטסאפ: <code>```הקוד שלי```</code> → טלגרם: <code>`הקוד שלי`</code>
+                </div>
+                
+                <div class="example-item">
+                    <strong>קישורי וואטסאפ:</strong>
+                    וואטסאפ: <code>chat.whatsapp.com/ABC123</code> → טלגרם: <code>t.me/nilchamim</code><br>
+                    וואטסאפ: <code>wa.me/123456</code> → טלגרם: <code>t.me/nilchamim</code>
+                </div>
+                
+                <div class="example-item">
+                    <strong>טקסט כללי:</strong>
+                    וואטסאפ: <code>הצטרף בוואטסאפ</code> → טלגרם: <code>הצטרף בטלגרם</code>
+                </div>
+                
+                <div class="example-item">
+                    <strong>טקסט מורכב:</strong>
+                    וואטסאפ: <code>*בולד* _איטליק_ ~מחוק~ ```קוד```</code><br>
+                    טלגרם: <code>**בולד** __איטליק__ ~~מחוק~~ `קוד`</code>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function convertMessage() {
+            const input = document.getElementById('input').value;
+            const output = document.getElementById('output');
+            
+            if (!input.trim()) {
+                alert('אנא הכנס הודעה להמרה');
+                return;
+            }
+            
+            let converted = input;
+            console.log('קלט מקורי:', converted);
+            
+            // המרת bold: *text* -> **text**
+            const beforeBold = converted;
+            converted = converted.replace(/\*([^*]+)\*/g, '**$1**');
+            if (beforeBold !== converted) {
+                console.log('אחרי המרת bold:', converted);
+            }
+            
+            // המרת italic: _text_ -> __text__
+            const beforeItalic = converted;
+            converted = converted.replace(/_([^_]+)_/g, '__$1__');
+            if (beforeItalic !== converted) {
+                console.log('אחרי המרת italic:', converted);
+            }
+            
+            // המרת strikethrough: ~text~ -> ~~text~~
+            const beforeStrike = converted;
+            converted = converted.replace(/~([^~]+)~/g, '~~$1~~');
+            if (beforeStrike !== converted) {
+                console.log('אחרי המרת strikethrough:', converted);
+            }
+            
+            // המרת code: ```text``` -> `text`
+            const beforeCode = converted;
+            converted = converted.replace(/```([^`]+)```/g, '`$1`');
+            if (beforeCode !== converted) {
+                console.log('אחרי המרת code:', converted);
+            }
+            
+            // המרת קישורי וואטסאפ לטלגרם
+            // המרת chat.whatsapp.com לטלגרם
+            converted = converted.replace(/https?:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]+/g, 'https://t.me/nilchamim');
+            converted = converted.replace(/chat\.whatsapp\.com\/[A-Za-z0-9]+/g, 't.me/nilchamim');
+            
+            // המרת wa.me לטלגרם
+            converted = converted.replace(/https?:\/\/wa\.me\/[0-9]+/g, 'https://t.me/nilchamim');
+            converted = converted.replace(/wa\.me\/[0-9]+/g, 't.me/nilchamim');
+            
+            // המרת whatsapp:// לטלגרם
+            converted = converted.replace(/whatsapp:\/\/[^\s]+/g, 'https://t.me/nilchamim');
+            
+            // המרת הזכרות של וואטסאפ כלליות
+            converted = converted.replace(/מוזמנים להצטרף לקבוצת וואטסאפ/gi, 'מוזמנים להצטרף לערוץ הטלגרם');
+            converted = converted.replace(/בוואטסאפ/gi, 'בטלגרם');
+            converted = converted.replace(/וואטסאפ/gi, 'טלגרם');
+            converted = converted.replace(/WhatsApp/gi, 'Telegram');
+            
+            console.log('תוצאה סופית:', converted);
+            output.value = converted;
+            
+            // הוספת אנימציה קלה
+            output.style.background = '#e8f5e8';
+            setTimeout(() => {
+                output.style.background = '#f1f3f4';
+            }, 500);
+            
+            // הצגת התוצאה גם בתיבת התראה לבדיקה
+            if (input !== converted) {
+                console.log('המרה הושלמה בהצלחה!');
+            } else {
+                console.log('לא נמצאו סימני פורמט להמרה');
+            }
+        }
+        
+        function copyOutput() {
+            const output = document.getElementById('output');
+            
+            if (!output.value.trim()) {
+                alert('אין טקסט להעתקה - אנא המר הודעה תחילה');
+                return;
+            }
+            
+            output.select();
+            output.setSelectionRange(0, 99999); // למובייל
+            
+            try {
+                // שימוש ב-Clipboard API החדש אם זמין
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(output.value).then(() => {
+                        showCopySuccess();
+                    }).catch(() => {
+                        // fallback לשיטה הישנה
+                        document.execCommand('copy');
+                        showCopySuccess();
+                    });
+                } else {
+                    document.execCommand('copy');
+                    showCopySuccess();
+                }
+                
+            } catch (err) {
+                alert('שגיאה בהעתקה - אנא העתק ידנית');
+            }
+        }
+        
+        function showCopySuccess() {
+            // שינוי זמני של הכפתור
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.textContent = 'הועתק! ✓';
+            btn.style.background = '#28a745';
+            
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.style.background = '#0088cc';
+            }, 2000);
+        }
+        
+        function addFormat(type) {
+            const textarea = document.getElementById('input');
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const selectedText = textarea.value.substring(start, end);
+            
+            if (selectedText.length === 0) {
+                alert('אנא סמן טקסט תחילה לפני הוספת פורמט');
+                return;
+            }
+            
+            let formattedText = '';
+            switch (type) {
+                case 'bold':
+                    formattedText = `*${selectedText}*`;
+                    break;
+                case 'italic':
+                    formattedText = `_${selectedText}_`;
+                    break;
+                case 'strike':
+                    formattedText = `~${selectedText}~`;
+                    break;
+                case 'code':
+                    formattedText = `\`\`\`${selectedText}\`\`\``;
+                    break;
+                default:
+                    formattedText = selectedText;
+            }
+            
+            // החלפת הטקסט הנבחר בטקסט המעוצב
+            const newValue = textarea.value.substring(0, start) + formattedText + textarea.value.substring(end);
+            textarea.value = newValue;
+            
+            // הגדרת המיקום החדש של הסמן
+            const newCursorPos = start + formattedText.length;
+            textarea.setSelectionRange(newCursorPos, newCursorPos);
+            textarea.focus();
+            
+            // המרה אוטומטית אחרי הוספת הפורמט
+            convertMessage();
+        }
+        
+        // המרה אוטומטית בזמן הקלדה
+        document.getElementById('input').addEventListener('input', function() {
+            if (this.value.trim()) {
+                convertMessage();
+            } else {
+                document.getElementById('output').value = '';
+            }
+        });
+        
+        // הוספת קיצורי מקלדת
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'Enter') {
+                convertMessage();
+            }
+            
+            // Ctrl+C בתיבת הפלט מעתיק אוטומטי
+            if (e.ctrlKey && e.key === 'c' && document.activeElement.id === 'output') {
+                copyOutput();
+            }
+        });
+        
+        // הוספת טיפול בהדבקה מהלוח
+        document.getElementById('input').addEventListener('paste', function(e) {
+            // המתנה קצרה לאחר ההדבקה ואז המרה
+            setTimeout(() => {
+                convertMessage();
+            }, 50);
+        });
+    </script>
+</body>
+</html> 
