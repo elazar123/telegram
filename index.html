@@ -467,29 +467,91 @@ _טקסט נטוי_
             }
             
             // טיפול מיוחד בתבנית החתימה "נלחמים על החיים"
-            const signatureRegex = /> ?נלחמים על החיים🔥-? ?[\s\S]*?וו?אטסאפ.*https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]+/;
-            if (signatureRegex.test(converted)) {
-                converted = converted.replace(signatureRegex, '~נלחמים על החיים🔥~\nhttps://t.me/nilchamim');
-                console.log('אחרי החלפת החתימה:', converted);
+            // גרסה גמישה שמזהה יותר מבנים
+            let hasSignature = false;
+            
+            // מזהה תבנית 1: > נלחמים על החיים...
+            const signatureRegex1 = /> ?נלחמים על החיים\*?🔥\*?-? ?[\s\S]*?(?:וו?אטסאפ|בוו?אטסאפ).*https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]+/;
+            if (signatureRegex1.test(converted)) {
+                converted = converted.replace(signatureRegex1, '~נלחמים על החיים🔥~\nhttps://t.me/nilchamim');
+                hasSignature = true;
+                console.log('אחרי החלפת החתימה (תבנית 1):', converted);
             }
             
-            // המרת קישורי וואטסאפ לטלגרם
-            // המרת chat.whatsapp.com לטלגרם
-            converted = converted.replace(/https?:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]+/g, 'https://t.me/nilchamim');
-            converted = converted.replace(/chat\.whatsapp\.com\/[A-Za-z0-9]+/g, 't.me/nilchamim');
+            // מזהה תבנית 2: שורה שמסתיימת ב"נלחמים על החיים"
+            const signatureRegex2 = /נלחמים על החיים\*?🔥[\s\S]*?https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]+/g;
+            if (signatureRegex2.test(converted)) {
+                converted = converted.replace(signatureRegex2, '~נלחמים על החיים🔥~\nhttps://t.me/nilchamim');
+                hasSignature = true;
+                console.log('אחרי החלפת החתימה (תבנית 2):', converted);
+            }
             
-            // המרת wa.me לטלגרם
-            converted = converted.replace(/https?:\/\/wa\.me\/[0-9]+/g, 'https://t.me/nilchamim');
-            converted = converted.replace(/wa\.me\/[0-9]+/g, 't.me/nilchamim');
+            // מזהה תבנית 3: "נלחמים על החיים" ואז קישור וואטסאפ
+            if (converted.includes('נלחמים על החיים') && converted.includes('https://chat.whatsapp.com/')) {
+                // מחליף את כל החלק מ"עד האבן האחרונה" עד הסוף
+                if (converted.includes('עד האבן האחרונה')) {
+                    converted = converted.replace(/עד האבן האחרונה![\s\S]*$/g, 'עד האבן האחרונה!\n\n~נלחמים על החיים🔥~\nhttps://t.me/nilchamim');
+                    hasSignature = true;
+                }
+                
+                // מחליף את החלק של "מוזמנים להצטרף"
+                if (converted.includes('מוזמנים להצטרף')) {
+                    converted = converted.replace(/מוזמנים להצטרף[\s\S]*?https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]+/g, 'מוזמנים להצטרף לקבוצת העדכונים האזורית:\nhttps://t.me/nilchamim');
+                    hasSignature = true;
+                }
+                
+                // טיפול במקרה המיוחד ששלחת
+                const whatsappLinkRegex = /https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]+/g;
+                const telegramLinkRegex = /https:\/\/t\.me\/nilchamim/g;
+                
+                // בודק שיש לפחות קישור וואטסאפ אחד
+                if (converted.match(whatsappLinkRegex) && !converted.match(telegramLinkRegex)) {
+                    // מחליף את כל הקישורים
+                    converted = converted.replace(whatsappLinkRegex, 'https://t.me/nilchamim');
+                    
+                    // מחליף את החלק האחרון עם "נלחמים על החיים" ואת הטקסט סביבו
+                    if (converted.includes('נלחמים על החיים🔥') && !converted.includes('~נלחמים על החיים🔥~')) {
+                        // מוצא את המיקום של המילים "נלחמים על החיים"
+                        const pos = converted.indexOf('נלחמים על החיים');
+                        if (pos > -1) {
+                            // מחלק את הטקסט לשני חלקים - לפני ואחרי "נלחמים על החיים"
+                            const firstPart = converted.substring(0, pos);
+                            
+                            // מחפש את סוף השורה או הפסקה שבה נמצא "נלחמים על החיים"
+                            let endPos = converted.indexOf('\n\n', pos);
+                            if (endPos === -1) endPos = converted.length;
+                            
+                            // מוסיף את הטקסט המעוצב בסוף
+                            converted = firstPart + '\n\n~נלחמים על החיים🔥~\nhttps://t.me/nilchamim';
+                            
+                            hasSignature = true;
+                        }
+                    }
+                }
+                
+                console.log('אחרי החלפת החתימה (תבנית 3):', converted);
+            }
             
-            // המרת whatsapp:// לטלגרם
-            converted = converted.replace(/whatsapp:\/\/[^\s]+/g, 'https://t.me/nilchamim');
-            
-            // המרת הזכרות של וואטסאפ כלליות
-            converted = converted.replace(/מוזמנים להצטרף לקבוצת וואטסאפ/gi, 'מוזמנים להצטרף לערוץ הטלגרם');
-            converted = converted.replace(/בוואטסאפ/gi, 'בטלגרם');
-            converted = converted.replace(/וואטסאפ/gi, 'טלגרם');
-            converted = converted.replace(/WhatsApp/gi, 'Telegram');
+            // אם יש קישור וואטסאפ אבל לא נתפס באף תבנית, החלף את כל הקישורים
+            if (!hasSignature) {
+                // המרת קישורי וואטסאפ לטלגרם
+                // המרת chat.whatsapp.com לטלגרם
+                converted = converted.replace(/https?:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]+/g, 'https://t.me/nilchamim');
+                converted = converted.replace(/chat\.whatsapp\.com\/[A-Za-z0-9]+/g, 't.me/nilchamim');
+                
+                // המרת wa.me לטלגרם
+                converted = converted.replace(/https?:\/\/wa\.me\/[0-9]+/g, 'https://t.me/nilchamim');
+                converted = converted.replace(/wa\.me\/[0-9]+/g, 't.me/nilchamim');
+                
+                // המרת whatsapp:// לטלגרם
+                converted = converted.replace(/whatsapp:\/\/[^\s]+/g, 'https://t.me/nilchamim');
+                
+                // המרת הזכרות של וואטסאפ כלליות
+                converted = converted.replace(/מוזמנים להצטרף לקבוצת וואטסאפ/gi, 'מוזמנים להצטרף לערוץ הטלגרם');
+                converted = converted.replace(/בוואטסאפ/gi, 'בטלגרם');
+                converted = converted.replace(/וואטסאפ/gi, 'טלגרם');
+                converted = converted.replace(/WhatsApp/gi, 'Telegram');
+            }
             
             console.log('תוצאה סופית:', converted);
             output.value = converted;
