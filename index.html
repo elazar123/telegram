@@ -4,6 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>המרת הודעות - וואטסאפ לטלגרם</title>
+    
+    <!-- Meta Tags for SEO and Social Media Preview -->
+    <meta name="description" content="אתר להמרת הודעות מפורמט וואטסאפ לפורמט טלגרם עם כפתורי עיצוב אינטראקטיביים">
+    <meta name="keywords" content="וואטסאפ, טלגרם, המרת הודעות, פורמט, בולד, איטליק">
+    <meta name="author" content="elazar123">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="המרת הודעות - וואטסאפ לטלגרם 🔄">
+    <meta property="og:description" content="אתר פשוט ויעיל להמרת הודעות מפורמט וואטסאפ לפורמט טלגרם עם כפתורי עיצוב אינטראקטיביים">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="./og-image.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:url" content="https://telegram-converter.vercel.app">
+    <meta property="og:site_name" content="המרת הודעות">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="המרת הודעות - וואטסאפ לטלגרם 🔄">
+    <meta name="twitter:description" content="אתר פשוט ויעיל להמרת הודעות מפורמט וואטסאפ לפורמט טלגרם">
+    <meta name="twitter:image" content="./og-image.jpg">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔄</text></svg>">
     <style>
         * {
             box-sizing: border-box;
@@ -440,6 +464,13 @@ _טקסט נטוי_
             converted = converted.replace(/```([^`]+)```/g, '`$1`');
             if (beforeCode !== converted) {
                 console.log('אחרי המרת code:', converted);
+            }
+            
+            // טיפול מיוחד בתבנית החתימה "נלחמים על החיים"
+            const signatureRegex = /> ?נלחמים על החיים🔥-? ?[\s\S]*?וו?אטסאפ.*https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]+/;
+            if (signatureRegex.test(converted)) {
+                converted = converted.replace(signatureRegex, '~נלחמים על החיים🔥~\nhttps://t.me/nilchamim');
+                console.log('אחרי החלפת החתימה:', converted);
             }
             
             // המרת קישורי וואטסאפ לטלגרם
