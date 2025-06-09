@@ -469,7 +469,7 @@ _טקסט נטוי_
             // דפוס 1: החתימה המלאה עם > 
             const fullSignaturePattern = />\s*(?:\*)?נלחמים על החיים(?:\*)?🔥-?.*\n>\s*(?:בוו?אטסאפ|ווצאפ).*https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]+/;
             if (fullSignaturePattern.test(converted)) {
-                converted = converted.replace(fullSignaturePattern, '**~נלחמים על החיים~**🔥\nhttps://t.me/nilchamim');
+                converted = converted.replace(fullSignaturePattern, '~~נלחמים על החיים~~🔥\nhttps://t.me/nilchamim');
                 signatureReplaced = true;
             }
             
@@ -504,7 +504,7 @@ _טקסט נטוי_
                     const textBeforeInvite = converted.substring(0, inviteIndex);
                     
                     // הוסף את החלק הנכון בסוף
-                    converted = textBeforeInvite + '**~נלחמים על החיים~**🔥\nhttps://t.me/nilchamim';
+                    converted = textBeforeInvite + '~~נלחמים על החיים~~🔥\nhttps://t.me/nilchamim';
                 }
             }
             
