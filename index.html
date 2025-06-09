@@ -435,53 +435,81 @@ _טקסט נטוי_
                 return;
             }
             
+            // שמירה על עותק מקורי
             let converted = input;
             console.log('קלט מקורי:', converted);
             
-            // שמירה על סימונים מיוחדים של וואטסאפ
-            
-            // המרת ציטוטים (>) - לא משנים את הסימון
+            // טיפול בהודעות עם סימוני פורמט מיוחדים
             
             // המרת בולד: *text* -> **text**
-            converted = converted.replace(/\*([^*\n]+)\*/g, '**$1**');
+            converted = converted.replace(/\*([^*\n]+?)\*/g, '**$1**');
             
             // המרת איטליק: _text_ -> __text__
-            converted = converted.replace(/_([^_\n]+)_/g, '__$1__');
+            converted = converted.replace(/_([^_\n]+?)_/g, '__$1__');
             
             // המרת קו חוצה: ~text~ -> ~~text~~
-            converted = converted.replace(/~([^~\n]+)~/g, '~~$1~~');
+            converted = converted.replace(/~([^~\n]+?)~/g, '~~$1~~');
             
-            // המרת קוד: ```text``` -> `text`
-            converted = converted.replace(/```([^`\n]+)```/g, '`$1`');
+            // המרת קוד: ```text``` -> `text` או `text` -> `text`
+            converted = converted.replace(/```([^`\n]+?)```/g, '`$1`');
+            converted = converted.replace(/`([^`\n]+?)`/g, '`$1`');
             
-            // המרת בוליטים במקום כוכביות: * item -> • item
-            // converted = converted.replace(/^\s*\*\s+([^\n]+)/gm, '• $1');
+            // וידוא שסימונים אחרי ההמרה נשמרים כראוי (מניעת המרה כפולה)
+            converted = converted.replace(/\*\*\*\*([^*\n]+?)\*\*\*\*/g, '**$1**');
+            converted = converted.replace(/____([^_\n]+?)____/g, '__$1__');
+            converted = converted.replace(/~~~~([^~\n]+?)~~~~/g, '~~$1~~');
             
-            // טיפול בחתימה המיוחדת
-            // נשמור על כל הפורמטים כולל הסימונים המקוריים
-            if (converted.includes('נלחמים על החיים') && converted.includes('https://chat.whatsapp.com/')) {
-                // נחפש את הדפוס המדויק של החתימה
-                const signaturePattern = /(>[\s\*]*נלחמים על החיים\*?🔥[\s\*]*-[\s\*]*\n>[\s\*]*בוואטסאפ[\s\*]*🪀[\s\*]*-[\s\*]*https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]+)/g;
-                
-                if (signaturePattern.test(converted)) {
-                    // נחליף את הדפוס הזה בפורמט הנכון לטלגרם
-                    converted = converted.replace(signaturePattern, '~נלחמים על החיים🔥~\nhttps://t.me/nilchamim');
-                    console.log('החלפת חתימה מדויקת');
-                } else {
-                    // אם לא מצאנו את הדפוס המדויק, נסה דפוסים אחרים
-                    const signaturePattern2 = /((?:>[\s\*]*)?נלחמים על החיים\*?🔥[\s\*]*-?[\s\*]*(?:\n)?(?:>[\s\*]*)?(?:בוואטסאפ|בווצאפ)[\s\*]*🪀?[\s\*]*-[\s\*]*https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]+)/g;
+            // טיפול בתבניות בוליטים
+            converted = converted.replace(/^\*\s+(.*?)$/gm, '• $1');
+            
+            // טיפול בחתימה המיוחדת "נלחמים על החיים"
+            // נחפש דפוסים שונים של החתימה
+            let signatureReplaced = false;
+            
+            // דפוס 1: החתימה המלאה עם > 
+            const fullSignaturePattern = />\s*(?:\*)?נלחמים על החיים(?:\*)?🔥-?.*\n>\s*(?:בוו?אטסאפ|ווצאפ).*https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]+/;
+            if (fullSignaturePattern.test(converted)) {
+                converted = converted.replace(fullSignaturePattern, 'נלחמים על החיים🔥\nhttps://t.me/nilchamim');
+                signatureReplaced = true;
+            }
+            
+            // דפוס 2: נלחמים על החיים בשורה נפרדת
+            if (!signatureReplaced) {
+                const lineSignaturePattern = /(?:נלחמים על החיים(?:\*)?🔥(?:\*)?)(?:.*?)(?:https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]+)/;
+                if (lineSignaturePattern.test(converted)) {
+                    // מוצא את המיקום האחרון של "עד האבן האחרונה" או "האבן האחרונה"
+                    const lastStoneIndex = converted.lastIndexOf('עד האבן האחרונה');
                     
-                    if (signaturePattern2.test(converted)) {
-                        converted = converted.replace(signaturePattern2, '~נלחמים על החיים🔥~\nhttps://t.me/nilchamim');
-                        console.log('החלפת חתימה - דפוס 2');
-                    } else {
-                        // כאחרון, החלף רק את הקישורים
-                        converted = converted.replace(/https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]+/g, 'https://t.me/nilchamim');
-                        console.log('החלפת קישורים בלבד');
+                    if (lastStoneIndex !== -1) {
+                        // מוצא את הסוף של השורה שבה נמצא "עד האבן האחרונה"
+                        const endOfLastStoneLine = converted.indexOf('\n', lastStoneIndex);
+                        const endPosition = endOfLastStoneLine !== -1 ? endOfLastStoneLine : converted.length;
+                        
+                        // שומר את החלק עד "עד האבן האחרונה" ומוסיף את החתימה החדשה
+                        converted = converted.substring(0, endPosition) + '\n\n~נלחמים על החיים🔥~\nhttps://t.me/nilchamim';
+                        signatureReplaced = true;
                     }
                 }
-            } else {
-                // אם אין את המילים "נלחמים על החיים", החלף רק את הקישורים
+            }
+            
+            // דפוס 3: קישור וואטסאפ ומילים "נלחמים על החיים" 
+            if (!signatureReplaced && converted.includes('נלחמים על החיים') && converted.includes('https://chat.whatsapp.com/')) {
+                // החלף את כל הקישורים של וואטסאפ
+                converted = converted.replace(/https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]+/g, 'https://t.me/nilchamim');
+                
+                // אם יש "מוזמנים להצטרף" והוא עדיין נמצא בטקסט
+                if (converted.includes('מוזמנים להצטרף')) {
+                    // שמור את כל מה שלפני "מוזמנים להצטרף"
+                    const inviteIndex = converted.indexOf('מוזמנים להצטרף');
+                    const textBeforeInvite = converted.substring(0, inviteIndex);
+                    
+                    // הוסף את החלק הנכון בסוף
+                    converted = textBeforeInvite + 'נלחמים על החיים🔥\nhttps://t.me/nilchamim';
+                }
+            }
+            
+            // אם לא החלפנו את החתימה, החלף את כל הקישורים של וואטסאפ
+            if (!signatureReplaced) {
                 converted = converted.replace(/https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]+/g, 'https://t.me/nilchamim');
                 converted = converted.replace(/chat\.whatsapp\.com\/[A-Za-z0-9]+/g, 't.me/nilchamim');
                 
